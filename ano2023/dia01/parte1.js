@@ -3,20 +3,15 @@ import { getInput } from "../inputService.js";
 
 const input = await getInput(1)
     .then( res => {
-        return res.data.split(/\n/gm);
+        console.log(
+            res.data
+                .split(/\n/gm) // separando por linha
+                .map(i => i.match(/\d/g)) // pegando todos os numeros
+                .filter(i => i) // retirando null
+                .map(i => i[0] + i.slice(-1)) //mapeando primeiro e ultimo valor
+                .map(i => parseInt(i)) // transformando em numero
+                .reduce((acc, val) => acc + val) //somando todos os valores
+        )
     }).catch(err => {
         console.log(err);
     });
-
-input.forEach((value, index, array) => {
-    let numbers = value.replace(/\D/g, '').split('');
-    if (numbers.length){
-        array[index] = parseInt(numbers[0] + numbers.pop());
-    }
-
-    
-})
-
-const coordinate = input.reduce((acc, val) => acc + val);
-
-console.log(coordinate);
