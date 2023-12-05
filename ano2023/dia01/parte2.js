@@ -1,32 +1,23 @@
 import { getInput } from "../inputService.js";
 
-function convertToCalibrationValue(matches) {
-    let calibrationValue = getValueFromLiteral(matches[0][1]) + getValueFromLiteral(matches.pop()[1])
-    return parseInt(calibrationValue);
-}
-
-function getValueFromLiteral(value) {
-    return parseInt(value) ? value : mapper[value]
+function convertToNumber(value) {
+    return value.replaceAll('one', 1).replaceAll('two', 2).replaceAll('three', 3).replaceAll('four', 4).replaceAll('five', 5).replaceAll('six', 6).replaceAll('seven', 7).replaceAll('eight', 8).replaceAll('nine', 9);
 }
 
 const pattern = new RegExp(/(?=(one|two|three|four|five|six|seven|eight|nine|\d))/gmi);
 
-const mapper = { one: '1',two: '2',three: '3',four: '4',five: '5',six: '6',seven: '7',eight: '8',nine : '9',}
-
-const calibrationValues = [];
-
-const input = await getInput(1)
+const coordinate = await getInput(1)
     .then( res => {
-        return res.data.split(/\n/gm);
+        return res.data
+            .split(/\n/gm) //separando por linhas
+            .map(v => [...v.matchAll(pattern)]) // extraindo resultados da caputra para lista
+            .filter(v => v[0]) //filtrando resultados vazios
+            .map(v => [v[0][1], v.slice(-1)[0][1]]) //pegando o valor da primeira e ultima captura para uma lista
+            .map(v => v.map(n => convertToNumber(n))) //convertendo cada elemento de extenso para numeral
+            .map(v => parseInt(v.join(''))) //juntando a lista e convertendo para int
+            .reduce((acc, val) => acc + val) //realizando soma da lista
     }).catch(err => {
         console.log(err);
 });
 
-input.forEach((value) => {
-    let matches = [...value.matchAll(pattern)];
-    if (matches.length){
-        calibrationValues.push(convertToCalibrationValue(matches));
-    }
-})
-
-console.log(calibrationValues.reduce((acc, val) => acc+val));
+console.log(coordinate);
