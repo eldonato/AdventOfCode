@@ -9,7 +9,7 @@ async function getResult(isOficial) {
     
     quantidadeRaspadinhas[i+1] = quantidadeRaspadinhas[i+1] ? quantidadeRaspadinhas[i+1] + 1 : 1;
 
-    const scratchcard = getScractchcard(parsedInput, i, isOficial)
+    const scratchcard = getScractchcard(parsedInput, i)
 
     for (let j = 0; j < scratchcard.acertos; j++) {
       let gameId = i+j+2
@@ -45,17 +45,15 @@ async function getParsedInput(isOficial) {
   return input.split(/\n/gm).filter(v => v);
 }
 
-function getScractchcard(parsedInput, index, isOficial){
+function getScractchcard(parsedInput, index){
   let scratchcard = {};
   const line = parsedInput[index];
 
-  if (!isOficial) {
-    scratchcard.numerosPremiados = line.slice(8, 23).match(/(\d)+/gm)
-    scratchcard.numerosCartela = line.slice(25, 48).match(/(\d)+/gm)
-  } else {
-    scratchcard.numerosPremiados = line.slice(10, 39).match(/(\d)+/gm)
-    scratchcard.numerosCartela = line.slice(42, 116).match(/(\d)+/gm)
-  }
+    let [primeiro, cartela] = line.split("|")
+    let [_, premio] = primeiro.split(":")
+
+    scratchcard.numerosCartela = cartela.match(/(\d)+/gm)
+    scratchcard.numerosPremiados = premio.match(/(\d)+/gm)
   
   scratchcard.acertos = scratchcard.numerosCartela.filter(np => scratchcard.numerosPremiados.includes(np)).length
 

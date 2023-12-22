@@ -7,7 +7,7 @@ async function getResult(isOficial) {
   let scratchcardList = []
   for (let i = 0; i < parsedInput.length; i++) {
     const line = parsedInput[i];
-    scratchcardList.push(getScractchcard(line, isOficial))
+    scratchcardList.push(getScractchcard(line))
   }
 
   return scratchcardList.reduce((acc, val) => acc + val.pontuacao, 0);
@@ -29,16 +29,14 @@ async function getParsedInput(isOficial) {
   return input.split(/\n/gm).filter(v => v);
 }
 
-function getScractchcard(line, isOficial){
+function getScractchcard(line){
   let scratchcard = {};
 
-  if (!isOficial) {
-    scratchcard.numerosPremiados = line.slice(8, 23).match(/(\d)+/gm)
-    scratchcard.numerosCartela = line.slice(25, 48).match(/(\d)+/gm)
-  } else {
-    scratchcard.numerosPremiados = line.slice(10, 39).match(/(\d)+/gm)
-    scratchcard.numerosCartela = line.slice(42, 116).match(/(\d)+/gm)
-  }
+  let [primeiro, cartela] = line.split("|")
+  let [_, premio] = primeiro.split(":")
+
+  scratchcard.numerosCartela = cartela.match(/(\d)+/gm)
+  scratchcard.numerosPremiados = premio.match(/(\d)+/gm)
   
   scratchcard.numerosVencedores = scratchcard.numerosCartela.filter(np => scratchcard.numerosPremiados.includes(np))
   scratchcard.pontuacao = scratchcard.numerosVencedores.length 
