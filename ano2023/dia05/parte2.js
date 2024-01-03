@@ -3,9 +3,9 @@ import PromptSync from "prompt-sync";
 const prompt = PromptSync();
 
 async function main() {
-  // const inputUsuario = prompt('É resposta final? [s] [n]:    ');
-  // const respostaFinal = inputUsuario.toLowerCase() == 's';
-  const result = await getResult(false);
+  const inputUsuario = prompt('É resposta final? [s] [n]:    ');
+  const respostaFinal = inputUsuario.toLowerCase() == 's';
+  const result = await getResult(respostaFinal);
 
   console.log(result);
 }
@@ -62,7 +62,9 @@ async function getResult(isOficial){
   
   const mappedSeedsList = transformRangeListFromMapList(seedRange, mapTransformList);
 
-  return '';
+  const minLocation = Math.min(...mappedSeedsList.map(map => map.entradaInicio))
+
+  return minLocation;
 }
 
 function getSeedRange(input) {
@@ -123,8 +125,8 @@ function transformRangeListFromMapList(rangeList, mapTransformList, index = 0) {
               ||  (range.entradaInicio >= m.entradaInicio && range.entradaFim <= m.entradaFim)
             )
       .sort((a, b) => a.entradaInicio - b.entradaInicio);
-      let transformFlat = transformRangeByMap(range, mapsInRange).flat();
-      transformedRangesList.push(transformFlat);
+      let transform = transformRangeByMap(range, mapsInRange).flat();
+      transformedRangesList.push(...transform);
     });
 
     
@@ -143,7 +145,7 @@ function transformRangeByMap(range, mapsInRange, index = 0) {
     return transformedRangeList;
   }
 
-  if (range.entradaInicio <= map.entradaInicio) {
+  if (range.entradaInicio < map.entradaInicio) {
     transformedRangeList.push({
       entradaInicio: range.entradaInicio,
       entradaFim: map.entradaInicio -1
@@ -163,17 +165,13 @@ function transformRangeByMap(range, mapsInRange, index = 0) {
 
 
   if (range.entradaFim > map.entradaFim) {
-    transformedRangeList.push({
-      entradaInicio: map.saidaInicio,
-      entradaFim: map.saidaFim
-    });
     
     const rangeRemnant = {
-      entradaInicio: range.entradaFim - map.entradaFim + 1,
+      entradaInicio: map.entradaFim + 1,
       entradaFim: range.entradaFim
     };
     
-    transformedRangeList.push(transformRangeByMap(rangeRemnant, mapsInRange, index + 1));
+    transformedRangeList.push(...transformRangeByMap(rangeRemnant, mapsInRange, index + 1));
   }
   return transformedRangeList;
 }
