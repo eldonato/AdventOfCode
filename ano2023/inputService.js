@@ -6,12 +6,26 @@ const axiosInstance = axios.create({
     baseURL: 'https://adventofcode.com',
     timeout: 5000,
     headers: {
-        Cookie: `session=53616c7465645f5f5165f8cfe2195e94ff1ad453d2301e47e3a5ddce2e2c716550fded300bbe1c4a52c6d4797b8804fd5b740bd008ff99d58e98bf0aae3c332a`,
+        Cookie: `session=${process.env.ADVENT_CODE_KEY}`,
         Accept: 'text/html',
     }
 })
 
 export function getInput(day) {
+
     const url = `/2023/day/${day}/input`
-    return axiosInstance.get(url);
+    return axiosInstance.get(url)
+    .catch(function (error) {
+        if (error.response) {
+          console.log(error.response.data);
+          console.log(error.response.status);
+          console.log(error.response.headers);
+        } else if (error.request) {
+          console.log(error.request);
+        } else {
+          console.log('Error', error.message);
+        }
+        console.log(error.config);
+      });
+
 }
